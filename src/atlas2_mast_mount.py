@@ -24,6 +24,7 @@ Device frame -> world:  Xw = -Ya + DEV_CX ,  Yw = Xa ,  Zw = Za
 
 import math
 import os
+import re
 import cadquery as cq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -419,12 +420,31 @@ for name, s in jobs:
           % ("" if ok else "!! ", name, nsol, dv))
     BAD.extend([] if ok else [name])
 
+# Named-component assemblies.  These carry STEP product structure, so Fusion
+# 360 / SolidWorks import them as named, separately selectable COMPONENTS --
+# Fusion can only apply joints to components, never to loose bodies.
+def named_assembly(items, name, path):
+    a = cq.Assembly(name=name)
+    for nm, sh, col in items:
+        a.add(sh, name=nm, color=cq.Color(*col))
+    (a.export if hasattr(a, "export") else a.save)(path)   # .save is deprecated
+    return a
+
+MOUNT_ITEMS = [("back_plate",  plate, (0.74, 0.76, 0.80, 1.0)),
+               ("front_shell", shell, (0.23, 0.41, 0.63, 1.0)),
+               ("toggle_nut",  tnut,  (0.78, 0.58, 0.24, 1.0))]
+named_assembly(MOUNT_ITEMS, "atlas2_mast_mount",
+               os.path.join(OUT, "assembly_mount_only.step"))
+named_assembly(MOUNT_ITEMS + [("mast_express", mast,  (0.67, 0.66, 0.63, 1.0)),
+                              ("atlas_2",      atlas, (0.15, 0.16, 0.18, 1.0))],
+               "atlas2_mast_mount_in_situ",
+               os.path.join(OUT, "assembly_with_mast_and_device.step"))
+for f in ("assembly_mount_only", "assembly_with_mast_and_device"):
+    names = sorted(set(re.findall(r"PRODUCT\s*\(\s*'([^']+)'", 
+                   open(os.path.join(OUT, f + ".step")).read())))
+    print("  %s.step   components: %s" % (f, ", ".join(names)))
+
 asm = cq.Compound.makeCompound([plate, shell, tnut])
-cq.exporters.export(cq.Workplane(obj=asm), os.path.join(OUT, "assembly_mount_only.step"))
-asm_full = cq.Compound.makeCompound([plate, shell, tnut, mast, atlas])
-cq.exporters.export(cq.Workplane(obj=asm_full), os.path.join(OUT, "assembly_with_mast_and_device.step"))
-print("  assembly_mount_only.step")
-print("  assembly_with_mast_and_device.step")
 
 # meshes used by src/render.py for the assembly views
 mast_stub = mast.intersect(box(-70, 70, -60, 60, -70, 70))

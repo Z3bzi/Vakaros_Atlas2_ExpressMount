@@ -190,3 +190,48 @@ part. It asserts:
 - The saddle is cut from the mast section as-measured with 0.4 mm clearance. A
   different Express extrusion batch, or paint build-up, may need `CLR_MAST`
   opening up slightly.
+
+## Opening in Fusion 360
+
+Use the **STEP** files — they import as editable solids. STL is for the slicer only.
+
+`assembly_mount_only.step` and `assembly_with_mast_and_device.step` carry STEP
+product structure, so they arrive as **named components** (`back_plate`,
+`front_shell`, `toggle_nut`, and for the in-situ file also `mast_express` and
+`atlas_2`), already coloured and positioned. This matters: Fusion applies
+joints to *components*, never to loose bodies.
+
+### Jointing it up
+
+Everything is already in its assembled position, so use **As-built Joints**
+(`Assemble → As-built Joint`). A normal Joint will yank parts out of position
+to mate them; an as-built joint locks in where things already are.
+
+| Pair | Joint | How |
+|---|---|---|
+| `back_plate` → ground | — | Right-click the component → **Ground** |
+| `front_shell` ↔ `back_plate` | **Revolute** | As-built Joint, Motion = Revolute, then click the Ø3.2 hinge pin bore as the axis |
+| `toggle_nut` ↔ `back_plate` | **Rigid** | As-built Joint, Motion = Rigid |
+| `atlas_2` ↔ `back_plate` | **Rigid** | As-built Joint, Motion = Rigid |
+| `mast_express` ↔ ground | — | **Ground** it |
+
+The hinge axis is at **X = −73.10, Y = −52.50**, running parallel to Z. You
+should not need to type that — picking the cylindrical face of the pin bore
+snaps the axis for you.
+
+After creating the revolute joint, right-click it → **Edit Joint Limits** and
+set **min 0°, max 120°**. That range is verified collision-free in
+`src/atlas2_mast_mount.py`, so the lid will not swing through the back plate.
+
+Other useful axes, all parallel to X:
+
+| Feature | Position |
+|---|---|
+| Mast bolts (M4) | Y = 0, Z = ±35 |
+| Thumbscrews (M3) | Y = +52.5, Z = ±30 |
+
+### If you imported a single-part STEP
+
+`back_plate.step` and `front_shell.step` are single solids and arrive as one
+body. To joint them, select the body in the browser and right-click →
+**Create Components from Bodies** first.
