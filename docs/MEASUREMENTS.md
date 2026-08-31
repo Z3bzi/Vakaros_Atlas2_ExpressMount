@@ -32,7 +32,7 @@ Straight extrusion along Z, hollow, symmetric about Y = 0.
 Drawing says 130 × 90; the solid measures 128.5 × 89.2. The drawing figures are
 to the theoretical sharp corners.
 
-### Forward T-slot (what the mount bolts into)
+### Forward T-slot (accessory track — not used by the current mount)
 
 Traced off the section at Z = 250:
 
@@ -46,7 +46,45 @@ Traced off the section at Z = 250:
 | Channel floor | X = **−57.500** (channel is 3.5 mm deep) |
 | Total slot depth from the nose | 7.16 mm |
 
-This matches the drawing's `5±0.5` throat callout.
+This matches the drawing's `5±0.5` throat callout. It is a flat rectangular
+track, i.e. a fitting/accessory slot. The mount used it up to commit `8bc21e8`;
+it now mounts aft instead, so the screen faces the cockpit.
+
+### Aft mainsail luff groove (what the mount now bolts into)
+
+Rasterised as solid material from the section at Z = 250:
+
+| Feature | Value |
+|---|---|
+| Aft-most point of the section | X = **63.822**, at Y ≈ ±15 |
+| Recess mouth | X = 63.5, Y = ±13.52, **flared — no undercut** |
+| Recess, parallel portion | **20.000 mm** wide (Y = ±10.000), X = 53.4 … 60.0 |
+| Recess shoulder (tongue stops here) | X = **53.496** |
+| Throat, narrowest | **5.000 mm**, at X = 52.0 |
+| Throat extent | X ≈ 49.7 … 53.4 |
+| Bolt-rope channel | circle, centre X = **50.04**, r = **10.05** (Ø20.1) |
+| Channel usable face | X ≈ 49.3 forward |
+
+Circle fit residual across six measured points is under 0.1 mm, so the channel
+is a true Ø20 circular bore.
+
+The clear opening at each depth:
+
+| X | 63.5 | 62.0 | 60.0 | 56.0 | 53.5 | 53.0 | 52.0 | 50.5 | 49.0 | 45.0 | 41.5 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| width | 27.03 | 24.03 | 20.02 | 20.00 | 20.00 | 6.03 | **5.01** | 5.95 | 20.00 | 17.62 | 10.60 |
+
+Two consequences drove the design:
+
+1. The **20.00 mm parallel recess** is a genuine location feature, so the back
+   plate carries a full-height 19.4 mm tongue that takes all the shear and
+   rotation. The bolts only clamp.
+2. The mouth **flares outward**, so there is nothing to hook onto from
+   outside — the fixing has to reach through the 5.00 mm throat into the round
+   channel. Hence a half-round bar that drops in from the end of the groove.
+
+Note both slots on this section have a 5.00 mm throat, so the M4 decision
+below applies either way.
 
 ## Vakaros Atlas 2
 

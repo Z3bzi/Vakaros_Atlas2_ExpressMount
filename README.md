@@ -1,13 +1,13 @@
 # Vakaros Atlas 2 — Express mast mount
 
-A two-part printed mount that bolts into the **forward T-slot** of an Express
-section mast and holds a Vakaros Atlas 2 in a hinged, thumbscrew-locked
-clamshell. Screen stays fully visible; every control and the charge port stays
-reachable with the device locked in.
+A two-part printed mount for the **aft face** of an Express section mast, so
+the screen faces the cockpit. It locates in the mainsail luff groove and locks
+the Atlas 2 in a hinged, thumbscrew-secured clamshell. Screen fully visible;
+every control and the charge port reachable with the device locked in.
 
-Generated parametrically from the supplied CAD — `src/atlas2_mast_mount.py`
-re-reads `reference/Mast.step` and `reference/Atlas_2.step` on every run and
-derives the mating geometry from them, so nothing is hand-transcribed.
+Generated parametrically — `src/atlas2_mast_mount.py` re-reads
+`reference/Mast.step` and `reference/Atlas_2.step` on every run and derives all
+mating geometry and cutout positions from them. Nothing is hand-transcribed.
 
 ![assembly](export/render_assembly_closed_iso.png)
 
@@ -15,95 +15,106 @@ derives the mating geometry from them, so nothing is hand-transcribed.
 
 | Part | File | Notes |
 |---|---|---|
-| Back plate | `export/back_plate.step` / `.stl` | Mast saddle + device backing, 109 cm³ |
+| Back plate | `export/back_plate.step` / `.stl` | Groove tongue + saddle + device backing, 122 cm³ |
 | Front shell | `export/front_shell.step` / `.stl` | Hinged clamshell, 25 cm³ |
-| Toggle nut ×2 | `export/toggle_nut.step` / `.stl` | Retrofit option — fits through the slot throat |
-| Slide nut bar | `export/slide_nut_bar.step` / `.stl` | Preferred — drops in from the mast head |
+| Luff nut bar | `export/luff_nut_bar.step` / `.stl` | Preferred — one bar spanning both bolts |
+| Luff nut slug | `export/luff_nut_slug.step` / `.stl` | Short single-bolt alternative, 25 mm |
 | Thumbscrew knob ×2 | `export/thumbscrew_knob.step` / `.stl` | Captures an M3 hex head |
-| Assemblies | `export/assembly_*.step` | Mount alone, and mount + mast + device |
+| Assemblies | `export/assembly_*.step` | Named components, see Fusion section |
 
-Overall: back plate 113.5 × 124.0 × 18.6 mm, shell 113.5 × 122.2 × 21.5 mm.
-The device screen ends up **22.65 mm** forward of the mast nose.
+Back plate 113.5 × 124.0 × 21.3 mm, shell 113.5 × 122.2 × 21.5 mm. The screen
+sits **21.75 mm** aft of the mast's aft face.
+
+## How it fixes to the mast
+
+The luff groove measures (see `docs/MEASUREMENTS.md`):
+
+- outer recess **20.00 mm** wide, X 53.4 → 60.0, flaring to 27 mm at the mouth
+- throat **5.00 mm** minimum
+- bolt-rope channel: a true circle, centre X 50.04, **r 10.05**
+
+Three consequences shaped the design:
+
+1. **The 20 mm parallel recess is a location feature.** The back plate carries
+   a full-height **19.4 mm tongue** that slides into it with 0.3 mm a side and
+   6.0 mm of engagement in the parallel section. That tongue takes all the
+   shear and all the rotation — the bolts only clamp.
+2. **The mouth flares outward**, so there is nothing to hook onto from
+   outside. The fixing has to reach through the 5.00 mm throat.
+3. **The channel is a clean Ø20 bore**, so the nut is a half-round bar — a
+   circular segment, flat face aft, tapped M4 — that drops in from the open end
+   of the groove. The 90 mm bar spans both bolts, cannot rotate, and bears on
+   roughly 190 mm² of channel wall.
+
+> **This works below the gooseneck only.** Above it the mainsail bolt rope
+> occupies the channel. Site the mount below the sail feeder, and check that
+> lowering the main fully does not run the bolt rope down onto the bar.
 
 ## Design
 
 | Feature | Detail |
 |---|---|
-| Mast interface | Conforming saddle, 38 mm of contact across the nose, 0.4 mm clearance |
-| Mast fixing | 2 × **M4** T-slot bolts at 70 mm centres, counterbored flush |
-| Nose wall | 8 mm through the bolt line |
-| Back plate core | 7 mm; local 9 mm bosses at the insert ears |
+| Mast location | 19.4 mm full-height tongue in the 20.00 mm recess, 6.0 mm engagement |
+| Mast fixing | 2 × **M4** at 70 mm centres, through the throat into the luff bar |
+| Saddle | Wings onto the aft skin either side of the groove, 0.5 mm clearance |
+| Wall over the aft skin | 7 mm; 17 mm of material through the tongue at the bolts |
 | Device clearance | 0.3 mm lateral, 0.2 mm in depth |
 | Rear relief | Two 2 mm channels for the Atlas's rear protrusions |
-| Front | Fully open — all four front buttons and the whole screen exposed |
+| Front | Fully open — all four buttons and the whole screen exposed |
 | Retention | 3 mm lip down each side, overlapping the bezel by 3 mm |
-| Top | 9 × 7.4 mm notch over the measured power-button position |
-| Bottom | 12 × 13.5 mm notch over the measured charge port, open forward for a plug |
+| Top | Notch over the measured power button, 6.0 mm screen-side tie bar |
+| Bottom | Notch over the measured charge port, 6.2 mm mast-side tie bar |
 | Drainage | 2 × Ø4 mm holes in the bottom wall |
-| Hinge | 3-knuckle, 3 mm pin, axis on the parting plane so the lid clears at any angle |
-| Lock | 2 × M3 thumbscrews at 60 mm centres into brass heat-set inserts |
+| Hinge | 3-knuckle, 3 mm pin, on the **right** as you face the screen |
+| Lock | 2 × M3 thumbscrews at 60 mm centres, on the **left**, into brass inserts |
 | Walls | 3 mm minimum throughout |
+
+Facing the screen: hinge right, thumbscrews left, and the Atlas's four buttons,
+power button and charge port are all on the **left**.
 
 **The mast bolts sit under the device.** Once the Atlas is in and the
 thumbscrews are done up, the mount cannot be unbolted from the mast without
 first opening the clamshell.
 
-## Three findings that changed the plan
+## Findings that shaped this
 
-Each of these came out of measuring the CAD, and each one would have produced a
+Each came out of measuring the CAD, and each would otherwise have produced a
 part that did not work.
 
-### 1. M5 will not fit the mast slot — this uses M4
+### M5 will not fit — this uses M4
 
-The forward T-slot throat measures **exactly 5.000 mm**, and the section
-drawing tolerances it at `5±0.5`. An M5 screw has a 5.0 mm major diameter, so
-it cannot pass the throat — and on a slot at the bottom of tolerance it would
-be 0.5 mm oversize. **M4 is used instead**, giving 1.0 mm of clearance in the
-nominal slot and 0.5 mm in the worst case.
+**Both** slots on this section have a throat measuring exactly **5.000 mm**,
+and the section drawing tolerances it `5±0.5`. An M5 screw has a 5.0 mm major
+diameter, so it cannot pass. **M4** gives 1.0 mm clearance nominal, 0.5 mm at
+the worst end of tolerance. Change `MAST_BOLT` in the build script to revisit.
 
-M4 also suits the nut: the internal channel is only 3.5 mm deep, so the nut can
-be at most ~3.2 mm thick. M4 through 3.2 mm is 0.8 × D of thread engagement;
-M5 would be 0.64 × D.
+### The four buttons are on the front face, not the side
 
-Change it in one place if you want to revisit this — `MAST_BOLT` in
-`src/atlas2_mast_mount.py`. Nothing else needs touching.
-
-### 2. The four buttons are on the front face, not the side
-
-They sit in a column 5 mm in from the right-hand edge and stand 0.35 mm proud
-of the bezel. A side cutout would have missed them entirely, and the planned
-corner retaining tabs would have landed on top of them.
-
-Retention is therefore a **full-height lip down each side** instead of corner
-tabs. It stops 1.95 mm clear of the buttons, and because the front glass is
-recessed 1.55 mm below the bezel the lip never touches the screen.
+They sit in a column 5 mm in from one edge and stand 0.35 mm proud of the
+bezel. A side cutout would have missed them; the originally planned corner
+retaining tabs would have landed on top of them. Retention is instead a
+**full-height lip down each side**, stopping 1.95 mm clear of the buttons.
+Because the glass is recessed 1.55 mm below the bezel, the lip never touches
+the screen.
 
 The power button and charge port are on the top and bottom edges but **offset
-to the same side as the buttons**, not centred — so both notches are placed on
-their measured positions rather than centrally.
+to the same side as the buttons**, so both notches are placed on their measured
+positions rather than centrally.
 
-### 3. The Atlas does not have a flat back
+### The Atlas does not have a flat back
 
-Two protrusions stand 1.16 mm proud of the rear plateau, diagonally opposite
-(Xa ±13.2…17.0). Sitting the device on a flat plate would have left it rocking
-on those two pads. Two 2 mm relief channels take them, and the device seats on
-the true plateau either side.
-
-## Hinge and lock side
-
-Looking at the screen, the controls-and-port end of the device is on your
-**left**. The hinge is on the right, the thumbscrews on the left, matching the
-brief. If you would rather have the knobs away from the controls, swap the
-signs on `HINGE_Y` and `LOCK_Y` and rebuild.
+Two protrusions stand 1.16 mm proud of the rear plateau, diagonally opposite.
+On a flat plate the device would rock on them. Two 2 mm relief channels take
+them, and it seats on the true plateau either side.
 
 ## Bill of materials
 
 | Qty | Item |
 |---|---|
-| 2 | M4 × 16 A4 stainless socket cap screw |
+| 2 | **M4 × 25** A4 stainless socket cap screw (M4 × 30 bottoms out — the bar is only 9 mm deep) |
 | 2 | M4 A4 washer (Ø9) |
-| 1 | Slide nut bar — 3 mm aluminium flat bar, 11.5 × 90 mm, tapped M4 at 70 mm centres |
-| — | *or* 2 × toggle nut, 10.8 × 4.2 × 3.2 mm, tapped M4 (see below) |
+| 1 | Luff nut bar — 90 mm, tapped M4 at 70 mm centres. Aluminium or stainless |
+| — | *or* 2 × 25 mm luff nut slug, tapped M4 |
 | 1 | 3 mm A4 stainless rod, 114 mm — hinge pin |
 | 2 | M3 brass heat-set insert, Ø4.0 × 5.7 mm |
 | 2 | M3 × 12 A4 stainless hex-head screw |
@@ -112,18 +123,10 @@ signs on `HINGE_Y` and `LOCK_Y` and rebuild.
 | 1 | 0.5 mm self-adhesive neoprene/EVA pad, ~85 × 110 mm (optional, kills rattle) |
 | — | 1 mm seizing wire or a split pin through the Ø1.6 hole at the top of the hinge |
 
-### Which nut
-
-The channel behind the throat is 12.0 mm wide and 3.5 mm deep.
-
-- **Slide nut bar (preferred).** 11.5 × 3.2 mm aluminium, drops in from the
-  mast head and spans both bolts. It cannot rotate, and it spreads the load
-  over ~200 mm² per shoulder. Use this if the masthead is accessible.
-- **Toggle nut (retrofit).** 10.8 × 4.2 × 3.2 mm. Goes through the 5 mm throat
-  edge-on with its long axis vertical, then turns 90° to catch both shoulders.
-  Its rotated diagonal is 11.59 mm against a 12.0 mm channel, so it turns
-  freely. Make these from steel or aluminium — printed plastic threads will not
-  hold here.
+The luff nut is a circular segment sized r 9.70 against the channel's r 10.05,
+with its flat at X 49.30. Make it from metal — printed plastic threads will not
+hold here. It must be fed in from the open end of the groove; it cannot be
+toggled through the 5 mm throat.
 
 ## Printing
 
@@ -131,37 +134,79 @@ PETG, ASA or nylon. PLA will creep and go brittle in UV — do not use it on a m
 
 | | Back plate | Front shell |
 |---|---|---|
-| Orientation | Standing on its bottom edge (mast axis vertical) | Front face down, cavity opening up |
-| Support | None | Under the hinge knuckle and the two flanges only |
+| Orientation | Standing on its bottom edge (mast axis vertical) | Screen face down, cavity opening up |
+| Support | None — the tongue prints as a vertical rib | Under the hinge knuckle and the two flanges only |
 | Bed | Brim recommended | — |
-| Walls / perimeters | 5 | 4 |
+| Perimeters | 5 | 4 |
 | Infill | 40 % gyroid | 30 % gyroid |
 | Layer | 0.2 mm | 0.2 mm |
 
-Standing the back plate on edge puts the hinge bores vertical, so they come out
-round without support, and runs the saddle as a straight vertical extrusion.
-
-If you want maximum lip strength on the shell, print it on edge instead and
-support the top wall — that puts the layer lines in-plane with the lip load,
-at the cost of a bridge across the cavity.
+Standing the back plate on edge puts the hinge bores vertical so they come out
+round without support, and runs both the tongue and the saddle as straight
+vertical extrusions.
 
 ## Assembly
 
 1. Print both parts. Melt the two M3 inserts into the back plate ears from the
-   front face.
-2. Fit the nut bar (or toggle nuts) into the mast slot at the height you want.
-3. Bolt the back plate on with the two M4 screws and washers. The heads sit in
-   counterbores, flush with the plate face. Snug them — the saddle should pull
-   evenly onto the nose.
+   device face.
+2. Feed the luff nut bar into the mainsail groove from its open end and slide
+   it to the height you want, **below the gooseneck**.
+3. Offer the back plate up so its tongue enters the recess, and run in the two
+   M4 × 25 screws with washers. The heads sit in counterbores, flush with the
+   plate face. The tongue should feel snug in the groove before you tighten.
 4. Optional: stick the neoprene pad to the plate face, clear of the two relief
    channels.
 5. Hang the shell on the plate and drop the 3 mm pin down through the knuckles.
    The bottom knuckle is blind so the pin cannot fall through. Secure the top
    with seizing wire through the Ø1.6 cross-hole.
-6. Epoxy the printed knobs onto the two M3 hex-head screws; slip an O-ring on
-   each shank behind the flange so they stay captive.
-7. Drop the Atlas in — screen forward, controls to the left, rear protrusions
-   into the relief channels — swing the shell shut and do up both knobs.
+6. Epoxy the knobs onto the two M3 hex-head screws; slip an O-ring on each
+   shank behind the flange so they stay captive.
+7. Drop the Atlas in — screen aft, controls to the left, rear protrusions into
+   the relief channels — swing the shell shut and do up both knobs.
+
+## Opening in Fusion 360
+
+Use the **STEP** files — they import as editable solids. STL is for the slicer.
+
+`assembly_mount_only.step` and `assembly_with_mast_and_device.step` carry STEP
+product structure, so they arrive as **named components** (`back_plate`,
+`front_shell`, `luff_nut_bar`, plus `mast_express` and `atlas_2` in the in-situ
+file), already coloured and positioned. This matters: Fusion applies joints to
+*components*, never to loose bodies.
+
+If the model comes in lying on its side, check **Preferences → Default
+modeling orientation** — these files are Z-up, with the mast axis on +Z.
+
+### Jointing it up
+
+Everything is already in its assembled position, so use **As-built Joints**
+(`Assemble → As-built Joint`). A normal Joint moves parts to mate them and will
+pull yours out of position.
+
+| Pair | Joint | How |
+|---|---|---|
+| `back_plate` → ground | — | Right-click the component → **Ground** |
+| `front_shell` ↔ `back_plate` | **Revolute** | As-built Joint, Motion = Revolute, then click the Ø3.2 hinge pin bore as the axis |
+| `luff_nut_bar` ↔ `back_plate` | **Rigid** | As-built Joint, Motion = Rigid |
+| `atlas_2` ↔ `back_plate` | **Rigid** | As-built Joint, Motion = Rigid |
+| `mast_express` ↔ ground | — | **Ground** it |
+
+The hinge axis is at **X = 71.222, Y = +52.50**, parallel to Z — but picking
+the cylindrical face of the pin bore snaps it for you.
+
+After creating the revolute joint, right-click → **Edit Joint Limits**, min
+**0°**, max **120°**. That range is verified collision-free by the build script.
+
+Other useful axes, all parallel to X:
+
+| Feature | Position |
+|---|---|
+| Mast bolts (M4) | Y = 0, Z = ±35 |
+| Thumbscrews (M3) | Y = −52.5, Z = ±30 |
+
+Single-part STEPs (`back_plate.step`, `front_shell.step`) are one solid and
+arrive as a single body — select it and right-click → **Create Components from
+Bodies** before jointing.
 
 ## Rebuilding
 
@@ -171,67 +216,22 @@ python3 src/atlas2_mast_mount.py     # writes export/*.step and *.stl
 python3 src/render.py                # writes export/render_*.png
 ```
 
-The build script self-checks on every run and will not silently produce a bad
-part. It asserts:
+The build self-checks on every run and will not silently ship a bad part:
 
-- zero interference between plate, shell, mast and device
-- that the saddle actually seats on the mast rather than floating
-- that the lid swings clear from 5° to 120°
-- that each part is a single valid solid, with no loose fragments
-- that every exported STEP re-imports as one solid with zero volume change
+- zero interference between plate, shell, luff bar, mast and device
+- the saddle and tongue actually seat on the mast rather than floating
+- the lid swings clear from 5° to 120°
+- each part is a single valid solid, with no loose fragments
+- every exported STEP re-imports as one solid with zero volume change
 
 ## Caveats
 
+- **Below the gooseneck only** — see the fixing note above.
 - `Atlas_2.step` is Vakaros's *simplified* model. Feature positions are solid,
-  but small details (button crown profiles, port chamfers) are approximate.
-  Test-fit before committing to a final print.
-- The T-slot is toleranced `5±0.5`. Check your own extrusion with a caliper
-  before ordering nuts.
-- The saddle is cut from the mast section as-measured with 0.4 mm clearance. A
-  different Express extrusion batch, or paint build-up, may need `CLR_MAST`
-  opening up slightly.
-
-## Opening in Fusion 360
-
-Use the **STEP** files — they import as editable solids. STL is for the slicer only.
-
-`assembly_mount_only.step` and `assembly_with_mast_and_device.step` carry STEP
-product structure, so they arrive as **named components** (`back_plate`,
-`front_shell`, `toggle_nut`, and for the in-situ file also `mast_express` and
-`atlas_2`), already coloured and positioned. This matters: Fusion applies
-joints to *components*, never to loose bodies.
-
-### Jointing it up
-
-Everything is already in its assembled position, so use **As-built Joints**
-(`Assemble → As-built Joint`). A normal Joint will yank parts out of position
-to mate them; an as-built joint locks in where things already are.
-
-| Pair | Joint | How |
-|---|---|---|
-| `back_plate` → ground | — | Right-click the component → **Ground** |
-| `front_shell` ↔ `back_plate` | **Revolute** | As-built Joint, Motion = Revolute, then click the Ø3.2 hinge pin bore as the axis |
-| `toggle_nut` ↔ `back_plate` | **Rigid** | As-built Joint, Motion = Rigid |
-| `atlas_2` ↔ `back_plate` | **Rigid** | As-built Joint, Motion = Rigid |
-| `mast_express` ↔ ground | — | **Ground** it |
-
-The hinge axis is at **X = −73.10, Y = −52.50**, running parallel to Z. You
-should not need to type that — picking the cylindrical face of the pin bore
-snaps the axis for you.
-
-After creating the revolute joint, right-click it → **Edit Joint Limits** and
-set **min 0°, max 120°**. That range is verified collision-free in
-`src/atlas2_mast_mount.py`, so the lid will not swing through the back plate.
-
-Other useful axes, all parallel to X:
-
-| Feature | Position |
-|---|---|
-| Mast bolts (M4) | Y = 0, Z = ±35 |
-| Thumbscrews (M3) | Y = +52.5, Z = ±30 |
-
-### If you imported a single-part STEP
-
-`back_plate.step` and `front_shell.step` are single solids and arrive as one
-body. To joint them, select the body in the browser and right-click →
-**Create Components from Bodies** first.
+  but small details are approximate. Test-fit before a final print.
+- The throat is toleranced `5±0.5`. Check your own extrusion with a caliper.
+- The saddle and tongue are cut from the section as-measured with 0.5 mm
+  clearance. A different extrusion batch, or anodising build-up, may need
+  `CLR_MAST` or `TONGUE_HALF_W` opening up slightly.
+- A mount on the aft face adds windage and weight aloft on the sail's leeward
+  side. Keep it as low on the spar as sightlines allow.

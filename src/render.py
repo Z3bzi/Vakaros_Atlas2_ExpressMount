@@ -24,8 +24,8 @@ def render(objs, direction, up=(0, 0, 1), W=1000, H=1000, bg=(250, 250, 248)):
     d = np.array(direction, float); d /= np.linalg.norm(d)
     up = np.array(up, float)
     if abs(np.dot(d, up)) > 0.99: up = np.array([0, 1, 0], float)
-    r = np.cross(up, d); r /= np.linalg.norm(r)
-    u = np.cross(d, r)
+    r = np.cross(d, up); r /= np.linalg.norm(r)   # screen-right = d x up
+    u = np.cross(r, d)
     M = np.stack([r, u, d])                      # world -> camera
 
     allv = np.vstack([t.reshape(-1, 3) for t, _ in objs])
@@ -87,24 +87,22 @@ def write_png(path, arr):
 if __name__ == '__main__':
     OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'export')
     C = {'plate': (188, 194, 203), 'shell': (58, 104, 160),
-         'dev': (38, 40, 46), 'mast': (172, 168, 160)}
+         'dev': (38, 40, 46), 'mast': (172, 168, 160), 'nut': (198, 148, 62)}
     def L(f): return load_stl(os.path.join(OUT, f))
     plate, shell, shopen = L('back_plate.stl'), L('front_shell.stl'), L('_mesh_shell_open.stl')
-    dev, mast = L('_mesh_device.stl'), L('_mesh_mast_stub.stl')
-
+    dev, mast, bar = L('_mesh_device.stl'), L('_mesh_mast_stub.stl'), L('luff_nut_bar.stl')
+    # camera looks along -X, so the screen (max X) faces us
     scenes = {
-      'assembly_closed': ([(mast, C['mast']), (plate, C['plate']),
+      'assembly_closed': ([(mast, C['mast']), (bar, C['nut']), (plate, C['plate']),
                            (dev, C['dev']), (shell, C['shell'])],
-                          {'iso': (1.0, 0.55, -0.40), 'front': (1, 0.02, -0.02)}),
-      'assembly_open':   ([(mast, C['mast']), (plate, C['plate']),
+                          {'iso': (-1.0, 0.55, -0.40), 'front': (-1, 0.02, -0.02)}),
+      'assembly_open':   ([(mast, C['mast']), (bar, C['nut']), (plate, C['plate']),
                            (dev, C['dev']), (shopen, C['shell'])],
-                          {'iso': (1.0, 0.55, -0.40)}),
-      'saddle_detail':   ([(mast, C['mast']), (plate, C['plate'])],
-                          {'top': (0.15, 0.1, -1.0), 'rear': (-1.0, 0.45, -0.35)}),
+                          {'iso': (-1.0, 0.55, -0.40)}),
+      'groove_detail':   ([(mast, C['mast']), (bar, C['nut']), (plate, C['plate'])],
+                          {'top': (0.15, 0.1, -1.0), 'iso': (-1.0, 0.45, -0.35)}),
       'back_plate':      ([(plate, C['plate'])],
-                          {'front': (1.0, 0.5, -0.35), 'saddle': (-1.0, 0.5, -0.35)}),
-      'front_shell':     ([(shell, C['shell'])],
-                          {'front': (1.0, 0.5, -0.35), 'inside': (-1.0, 0.5, -0.35)}),
+                          {'device_face': (-1.0, 0.5, -0.35), 'tongue': (1.0, 0.5, -0.35)}),
     }
     for name, (objs, views) in scenes.items():
         for vn, d in views.items():
