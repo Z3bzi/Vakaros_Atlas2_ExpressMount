@@ -180,3 +180,46 @@ Anything in that volume blocks insertion regardless of what it does when
 locked. Behind the plate face the usable gap between the mast (X 63.82) and the
 protrusion channels is only **5.7 mm** — too narrow for a pivot boss, which is
 why the lock ended up outboard on the rail pad.
+
+## Orientation
+
+The device is mounted with its **+Za end downward**: the big raised bar on the
+front face (Xa ±9.70, Za 47.91…51.29) sits at the bottom of the screen. The
+transform is therefore
+
+    Xw = Ya + DEV_CX ,  Yw = +Xa ,  Zw = −Za
+
+a 180° rotation about the device's own Ya axis (the screen normal), then −90°
+about Z. Determinant +1, so it is a rotation and not a mirror.
+
+Where the features land, with the 2 mm case (`DEV_CX` = 86.472):
+
+| Feature | Y | Z | X |
+|---|---|---|---|
+| Big raised bar (screen) | −9.70…9.70 | **−51.29…−47.91** | 84.68…87.82 |
+| Edge control A | 34.19…38.04 | **−57.02…−54.19** (bottom) | 78.85…80.56 |
+| Edge control B | 27.21…36.94 | **55.30…58.01** (top) | 80.65…84.61 |
+| 4 front buttons | 36.61…39.49 | −41.10…−29.70 | 84.68…87.82 |
+| Rear protrusion pair | ±13.16…17.03 | ±34.40…55.69 | 72.06…77.46 |
+
+Everything the user touches is on **+Y**, which is the viewer's right when
+facing the screen. That is why the lock went to −Y.
+
+## Silicone case
+
+The Atlas 2 is carried in a 2 mm silicone case, so the cradle is built around an
+envelope of the device grown by `CASE_T` = 2.0 on every face, plus the usual
+0.3 mm fit clearance:
+
+| | Bare device | Envelope |
+|---|---|---|
+| Half width | 44.44 | **46.44** |
+| Top / bottom | ±57.64 | **±59.64** |
+| Back → front (Ya) | −13.25 … +1.00 | **−15.25 … +3.00** |
+| Depth | 14.25 mm | **18.25 mm** |
+
+Two knock-on effects worth noting. The rear protrusions stand 1.16 mm proud of
+the device's rear plateau; a case following that contour bulges the same amount,
+so the 2 mm relief channels are still required. And the cam now bears on the
+flat top of the case rather than the device's rounded crown, which is a much
+better contact — see the README.

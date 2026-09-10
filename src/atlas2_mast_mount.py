@@ -54,15 +54,20 @@ DEV_TOP_Z      =  57.64
 DEV_BOT_Z      = -57.64
 DEV_PORT_BOT_Z = -58.01
 
-BTN_XA  = (36.61, 39.49)
-PWR_XA  = (34.19, 38.04)
-PWR_YA  = (-7.62, -5.91)
-PORT_XA = (27.21, 36.94)
-PORT_YA = (-5.82, -1.86)
+# The device is mounted with its +Za end DOWN: the big raised bar on the front
+# face (Za 47.91..51.29) is at the bottom.  So Zw = -Za, and every edge feature
+# below lands on the opposite end from its raw Za.
+BTN_XA  = (36.61, 39.49)     # 4 front buttons, Za +/-35.40 and +/-11.80
+BAR_ZA  = (47.91, 51.29)     # big raised bar on the screen -- this end is DOWN
+ENDA_XA = (34.19, 38.04)     # edge control at Za ~ +57 -> lands on the BOTTOM
+ENDA_YA = (-7.62, -5.91)
+ENDB_XA = (27.21, 36.94)     # edge control at Za ~ -58 -> lands on the TOP
+ENDB_YA = (-5.82, -1.86)
 PROT_XA = (13.16, 17.03)
 
 # ------------------------------------------------------------------ design --
 CLR          = 0.30
+CASE_T       = 2.00       # Atlas 2 lives in a 2 mm silicone case
 CLR_MAST     = 0.50
 RAIL_WALL    = 3.00
 LIP_T        = 3.00
@@ -85,7 +90,7 @@ BOLT_DZ           = 35.0
 # M5 pivot boss fits.  Locked, the lobe reaches inboard over the device's top
 # corner; a quarter turn swings it fore-and-aft, clear.
 LOCK_PIVOT_X   = 79.0
-LOCK_PIVOT_Y   = 51.5        # boss (r 6.5) must clear the corridor at Y 44.74
+LOCK_PIVOT_Y   = -53.5       # -Y: all the device's controls are on +Y
 LOCK_BOSS_R    = 6.5
 LOCK_LOBE_LEN  = 13.5
 LOCK_LOBE_HW   = 5.0
@@ -93,46 +98,56 @@ LOCK_T         = 6.0
 LOCK_BORE      = 5.3         # M5 pivot thumbscrew
 LOCK_INSERT_D  = 6.4         # M5 brass heat-set insert
 LOCK_INSERT_DP = 9.5
-LOCK_HASP_Y    = 45.5        # pin / seizing wire, lines up only when locked
+LOCK_HASP_Y    = -47.5       # pin / seizing wire, lines up only when locked
 LOCK_HASP_D    = 4.2
 LOCK_PAD_X     = (72.0, 86.0)
-LOCK_PAD_Y     = 58.0
+LOCK_PAD_Y     = -60.0
 LOCK_PAD_Z0    = 30.0
 LOCK_PAD_DROP  = 0.15        # pad sits just below the device crown
 LOCK_PAD_GAP   = 0.50        # running clearance under the cam
 
-PLATE_Y0, PLATE_Y1 = -49.0, 49.0
+PLATE_Y0, PLATE_Y1 = -51.0, 51.0
 
 # --------------------------------------------------------------- derived ----
 PLATE_FACE_X = MAST_AFT_X + CLR_MAST + AFT_WALL          # 71.222
-DEV_CX       = PLATE_FACE_X - DEV_BACK_Y                 # 84.472
+CASED_BACK_Y = DEV_BACK_Y - CASE_T
+DEV_CX       = PLATE_FACE_X - CASED_BACK_Y
 
 def dvx(ya): return ya + DEV_CX
-def dvy(xa): return -xa
+def dvy(xa): return xa            # flipped device: +Xa -> +Yw
+def dvz(za): return -za           # flipped device: +Za is DOWN
 def dvxs(a, b): return tuple(sorted((dvx(a), dvx(b))))
 def dvys(a, b): return tuple(sorted((dvy(a), dvy(b))))
+def dvzs(a, b): return tuple(sorted((dvz(a), dvz(b))))
 
-DEV_SCREEN_X = dvx(DEV_FRONT_Y)                          # 85.472
-DEV_BTN_X    = dvx(DEV_BUTTON_Y)
-CAV_Y        = DEV_HALF_W + CLR
-CAV_FRONT_X  = DEV_SCREEN_X + 0.20
-LEDGE_TOP_Z  = DEV_BOT_Z                                 # device sits on this
+# envelope = device grown by the silicone case
+ENV_HALF_W   = DEV_HALF_W + CASE_T
+ENV_TOP_Z    = DEV_TOP_Z + CASE_T
+ENV_BOT_Z    = -ENV_TOP_Z
+ENV_FRONT_X  = dvx(DEV_FRONT_Y + CASE_T)
+DEV_SCREEN_X = dvx(DEV_FRONT_Y)
+
+CAV_Y        = ENV_HALF_W + CLR
+CAV_FRONT_X  = ENV_FRONT_X + 0.20
+LEDGE_TOP_Z  = ENV_BOT_Z
 CRADLE_BOT_Z = LEDGE_TOP_Z - LEDGE_T
-RAIL_TOP_Z   = DEV_TOP_Z + 0.40
+RAIL_TOP_Z   = ENV_TOP_Z + 0.40
 RAIL_OUT_Y   = CAV_Y + RAIL_WALL
 RAIL_FRONT_X = CAV_FRONT_X + LIP_T
-LIP_IN_Y     = DEV_HALF_W - 3.0
-LOCK_PAD_TOP_Z = DEV_TOP_Z - LOCK_PAD_DROP
+LIP_IN_Y     = ENV_HALF_W - 3.0
+LOCK_PAD_TOP_Z = ENV_TOP_Z - LOCK_PAD_DROP
 LOCK_UNDER_Z = LOCK_PAD_TOP_Z + LOCK_PAD_GAP
 LOCK_TOP_Z   = LOCK_UNDER_Z + LOCK_T
-LOCK_TIP_Y   = LOCK_PIVOT_Y - LOCK_LOBE_LEN
-PLATE_TOP_Z  = DEV_TOP_Z + 0.30
+LOCK_TIP_Y   = LOCK_PIVOT_Y + LOCK_LOBE_LEN
+PLATE_TOP_Z  = ENV_TOP_Z + 0.30
 
-# cutouts derived from the measured feature boxes
-PWR_CUT_Y  = (dvys(*PWR_XA)[0] - 1.9, dvys(*PWR_XA)[1] + 1.9)
-PORT_CUT_Y = (dvys(*PORT_XA)[0] - 2.1, dvys(*PORT_XA)[1] + 2.1)
-PORT_CUT_X0 = dvxs(*PORT_YA)[0] - 1.2
-RELIEF_Y   = (PROT_XA[0] - 1.2, PROT_XA[1] + 1.5)
+# cutouts derived from the measured feature boxes, widened for the case
+_M = CASE_T + 2.0
+BOTCTL_Y  = (dvys(*ENDA_XA)[0] - _M, dvys(*ENDA_XA)[1] + _M)
+BOTCTL_X1 = dvxs(*ENDA_YA)[1] + _M
+TOPCTL_Y  = (dvys(*ENDB_XA)[0] - _M, dvys(*ENDB_XA)[1] + _M)
+TOPCTL_X  = dvxs(*ENDB_YA)
+RELIEF_Y  = (PROT_XA[0] - 1.2, PROT_XA[1] + 1.5)
 
 # ------------------------------------------------------------- primitives --
 def box(x0, x1, y0, y1, z0, z1):
@@ -171,7 +186,9 @@ mast_raw = cq.importers.importStep(os.path.join(REF, "Mast.step")).val()
 atlas_raw = cq.importers.importStep(os.path.join(REF, "Atlas_2.step"))
 mast = mast_raw.translate((0, 0, -250.0))
 atlas = (cq.Compound.makeCompound(atlas_raw.solids().vals())
-         .rotate((0, 0, 0), (0, 0, 1), -90).translate((DEV_CX, 0, 0)))
+         .rotate((0, 0, 0), (0, 1, 0), 180)      # upside down: +Za end goes DOWN
+         .rotate((0, 0, 0), (0, 0, 1), -90)
+         .translate((DEV_CX, 0, 0)))
 
 _SECT = None
 def section_segments():
@@ -239,11 +256,12 @@ def build_cradle():
                               *sorted((s * LIP_IN_Y, s * RAIL_OUT_Y)),
                               CRADLE_BOT_Z, RAIL_TOP_Z))
     # pad on top of the +Y rail that carries the rotating lock
-    part = fuse(part, box(LOCK_PAD_X[0], LOCK_PAD_X[1], CAV_Y, LOCK_PAD_Y,
+    part = fuse(part, box(LOCK_PAD_X[0], LOCK_PAD_X[1],
+                          *sorted((-CAV_Y, LOCK_PAD_Y)),
                           LOCK_PAD_Z0, LOCK_PAD_TOP_Z))
     # rail top is cut down under the cam so the lobe can swing over it
     part = part.cut(box(LOCK_PAD_X[0] - 0.6, LOCK_PAD_X[1] + 0.6,
-                        CAV_Y, LOCK_PAD_Y + 1.0,
+                        *sorted((-CAV_Y, LOCK_PAD_Y - 1.0)),
                         LOCK_PAD_TOP_Z, RAIL_TOP_Z + 1.0))
     # load-bearing bottom ledge -- the device rests here, nothing else
     part = fuse(part, box(PLATE_FACE_X, RAIL_FRONT_X, -RAIL_OUT_Y, RAIL_OUT_Y,
@@ -254,11 +272,11 @@ def build_cradle():
         part = part.cut(box(PLATE_FACE_X - 2.0, PLATE_FACE_X,
                             *sorted((s * RELIEF_Y[0], s * RELIEF_Y[1])),
                             -57.0, PLATE_TOP_Z + 1.0))
-    # charge port, through the ledge, open forward for a plug
-    part = part.cut(box(PORT_CUT_X0, RAIL_FRONT_X + 1.0, *PORT_CUT_Y,
+    # bottom-edge control: notch through the ledge, open forward
+    part = part.cut(box(PLATE_FACE_X - 1.0, BOTCTL_X1, *BOTCTL_Y,
                         CRADLE_BOT_Z - 1.0, LEDGE_TOP_Z + 0.6))
     # drains
-    for yc in (10.0, 30.0):
+    for yc in (-12.0, -32.0):
         part = part.cut(cyl_z(PLATE_FACE_X + 8.0, yc,
                               CRADLE_BOT_Z - 1.0, LEDGE_TOP_Z + 1.0, 2.0))
     # mast bolts
@@ -282,7 +300,7 @@ def build_lock():
     px, py = LOCK_PIVOT_X, LOCK_PIVOT_Y
     part = fuse(
         cyl_z(px, py, LOCK_UNDER_Z, LOCK_TOP_Z, LOCK_BOSS_R),
-        box(px - LOCK_LOBE_HW, px + LOCK_LOBE_HW, LOCK_TIP_Y, py,
+        box(px - LOCK_LOBE_HW, px + LOCK_LOBE_HW, *sorted((LOCK_TIP_Y, py)),
             LOCK_UNDER_Z, LOCK_TOP_Z),
         cyl_z(px, LOCK_TIP_Y, LOCK_UNDER_Z, LOCK_TOP_Z, LOCK_LOBE_HW))
     for i in range(8):                                   # finger flutes
@@ -346,11 +364,16 @@ if not chk(v > 1.0, "seat proof: cradle meets mast+0.65",
 # which way does the lock open?
 print("\n--- lock rotation ------------------------------------------------")
 _ab = atlas.BoundingBox()
-_ZTOP = DEV_TOP_Z + 140.0
+_ZTOP = ENV_TOP_Z + 140.0
 CORRIDOR = fuse(
-    box(PLATE_FACE_X, _ab.xmax, -DEV_HALF_W, DEV_HALF_W, DEV_TOP_Z, _ZTOP),
-    box(_ab.xmin, PLATE_FACE_X, PROT_XA[0] - 0.3, PROT_XA[1] + 0.3, DEV_TOP_Z, _ZTOP),
-    box(_ab.xmin, PLATE_FACE_X, -PROT_XA[1] - 0.3, -PROT_XA[0] + 0.3, DEV_TOP_Z, _ZTOP))
+    box(PLATE_FACE_X, ENV_FRONT_X, -ENV_HALF_W, ENV_HALF_W, ENV_TOP_Z, _ZTOP),
+    box(_ab.xmin - CASE_T, PLATE_FACE_X, PROT_XA[0] - 0.3, PROT_XA[1] + 0.3,
+        ENV_TOP_Z, _ZTOP),
+    box(_ab.xmin - CASE_T, PLATE_FACE_X, -PROT_XA[1] - 0.3, -PROT_XA[0] + 0.3,
+        ENV_TOP_Z, _ZTOP))
+# the cased device as a conservative box -- this is what actually has to fit
+CASED = box(PLATE_FACE_X, ENV_FRONT_X, -ENV_HALF_W, ENV_HALF_W,
+            ENV_BOT_Z, ENV_TOP_Z)
 best = None
 for ang in (90, -90):
     o = lock_at(lock, ang)
@@ -376,14 +399,15 @@ if not chk(worst < 1.0, "device slides in from the top, 0..120 mm",
            "worst overlap = %.3f mm^3" % worst): FAIL.append("slide")
 
 print("\n--- retention and access -----------------------------------------")
+# the lock retains the CASE, not the bare device -- measure against the envelope
 free = None
 for mm in [x / 20.0 for x in range(1, 61)]:
-    if vol(atlas.translate((0, 0, mm)).intersect(lock)) > 0.02:
+    if vol(CASED.translate((0, 0, mm)).intersect(lock)) > 0.02:
         free = mm; break
 if not chk(free is not None and free <= 0.60,
            "closed lock: free lift before it bites",
            "%.2f mm" % (free if free else 99)): FAIL.append("retain")
-v = vol(atlas.translate((0, 0, 1.0)).intersect(lock))
+v = vol(CASED.translate((0, 0, 1.0)).intersect(lock))
 if not chk(v > 1.0, "closed lock resists a 1 mm lift",
            "interference = %9.3f mm^3" % v): FAIL.append("retain force")
 SLAB_T = 0.10
@@ -394,21 +418,24 @@ if not chk(area > 400.0, "load-bearing ledge under the device",
            "bearing area = %.0f mm^2" % area): FAIL.append("ledge area")
 
 # nothing above the power button, nothing over the four front buttons
-pwr = box(dvxs(*PWR_YA)[0] - 0.5, dvxs(*PWR_YA)[1] + 0.5, PWR_CUT_Y[0] + 1.4,
-          PWR_CUT_Y[1] - 1.4, DEV_TOP_Z, DEV_TOP_Z + 60.0)
-v = vol(cradle.intersect(pwr)) + vol(lock.intersect(pwr))
-if not chk(v < 1.0, "power button: clear finger access from above",
-           "obstruction = %.3f mm^3" % v): FAIL.append("power button")
-btn = box(DEV_BTN_X - 0.5, DEV_BTN_X + 40.0, dvys(*BTN_XA)[0] - 0.5,
+bot = box(dvxs(*ENDA_YA)[0] - 0.5, dvxs(*ENDA_YA)[1] + 0.5,
+          BOTCTL_Y[0] + 1.4, BOTCTL_Y[1] - 1.4, ENV_BOT_Z - 60.0, ENV_BOT_Z)
+v = vol(cradle.intersect(bot)) + vol(lock.intersect(bot))
+if not chk(v < 1.0, "bottom edge control: clear access from below",
+           "obstruction = %.3f mm^3" % v): FAIL.append("bottom control")
+btn = box(ENV_FRONT_X - 0.5, ENV_FRONT_X + 40.0, dvys(*BTN_XA)[0] - 0.5,
           dvys(*BTN_XA)[1] + 0.5, -50.0, 50.0)
 v = vol(cradle.intersect(btn)) + vol(lock.intersect(btn))
 if not chk(v < 1.0, "4 front buttons: nothing in front of them",
            "obstruction = %.3f mm^3" % v): FAIL.append("front buttons")
-port = box(dvxs(*PORT_YA)[0] - 0.5, dvxs(*PORT_YA)[1] + 0.5, PORT_CUT_Y[0] + 1.6,
-           PORT_CUT_Y[1] - 1.6, DEV_BOT_Z - 40.0, DEV_BOT_Z)
-v = vol(cradle.intersect(port))
-if not chk(v < 1.0, "charge port: clear access from below",
-           "obstruction = %.3f mm^3" % v): FAIL.append("charge port")
+top = box(TOPCTL_X[0] - 0.5, TOPCTL_X[1] + 0.5, TOPCTL_Y[0] + 1.6,
+          TOPCTL_Y[1] - 1.6, ENV_TOP_Z, ENV_TOP_Z + 60.0)
+v = vol(cradle.intersect(top)) + vol(lock.intersect(top))
+if not chk(v < 1.0, "top edge control: clear access from above",
+           "obstruction = %.3f mm^3" % v): FAIL.append("top control")
+v = vol(cradle.intersect(CASED)) + vol(lock.intersect(CASED))
+if not chk(v < 1.0, "cased device (device + 2 mm) fits the cavity",
+           "overlap = %.3f mm^3" % v): FAIL.append("case fit")
 
 bb = cradle.BoundingBox()
 print("\ncradle %.1f x %.1f x %.1f mm   %.1f cm^3"
@@ -418,8 +445,10 @@ print("lock   %.1f x %.1f x %.1f mm   %.1f cm^3"
       % (bb.xlen, bb.ylen, bb.zlen, vol(lock) / 1000.0))
 print("stack: mast aft face %.2f -> screen %.2f = %.2f mm standoff"
       % (MAST_AFT_X, DEV_SCREEN_X, DEV_SCREEN_X - MAST_AFT_X))
+print("cavity: %.2f x %.2f x %.2f mm for a %.0f mm cased device"
+      % (2 * CAV_Y, CAV_FRONT_X - PLATE_FACE_X, RAIL_TOP_Z - LEDGE_TOP_Z, CASE_T))
 print("lock: quarter turn (%+d deg) to open; underside sits %.2f mm above the device"
-      % (LOCK_OPEN_ANGLE, LOCK_UNDER_Z - DEV_TOP_Z))
+      % (LOCK_OPEN_ANGLE, LOCK_UNDER_Z - ENV_TOP_Z))
 
 # --------------------------------------------------------------- exports ----
 print("\nexporting ...")

@@ -1,9 +1,13 @@
 # Vakaros Atlas 2 — Express mast mount
 
 A slide-in cradle for the **aft face** of an Express section mast, screen facing
-the cockpit. The Atlas 2 drops in from the top and lands on a solid ledge; a
-quarter-turn cam on top retains it. Screen fully visible, every control and the
-charge port reachable with the device locked in.
+the cockpit. The Atlas 2 — **in its 2 mm silicone case** — drops in from the top
+and lands on a solid ledge; a quarter-turn cam on top retains it. Screen fully
+visible, every control reachable with the device locked in.
+
+Orientation: the big raised bar on the screen is at the **bottom**. Facing the
+screen, the Atlas's controls are all on the **right** and the lock is on the
+**left**.
 
 Generated parametrically — `src/atlas2_mast_mount.py` re-reads
 `reference/Mast.step` and `reference/Atlas_2.step` on every run and derives all
@@ -17,7 +21,7 @@ Nothing that moves carries the device:
 
 | Direction | Taken by |
 |---|---|
-| Weight, −Z | **Fixed bottom ledge**, 1156 mm² of bearing area |
+| Weight, −Z | **Fixed bottom ledge**, 1138 mm² of bearing area |
 | Fore/aft, X | **Fixed side-rail lips** |
 | Athwartships, Y | **Fixed side rails** |
 | Lift-out, +Z | The rotating lock — a retainer only, never loaded in normal use |
@@ -35,8 +39,9 @@ sees no load unless something tries to throw the device upward.
 | Luff nut slug | `export/luff_nut_slug.step` / `.stl` | Short single-bolt alternative |
 | Assemblies | `export/assembly_*.step` | Named components, see Fusion section |
 
-Cradle 107.0 × 119.7 × 34.8 mm. The screen sits **21.75 mm** aft of the mast's
-aft face.
+Cradle 111.0 × 123.7 × 38.8 mm, 145 cm³. Cavity 93.48 × 18.45 × 119.68 mm,
+sized for the device plus a 2 mm case plus 0.3 mm fit clearance. The screen sits
+**23.75 mm** aft of the mast's aft face.
 
 ## The rotating lock, and why it sits where it does
 
@@ -55,25 +60,28 @@ travel. Anything left in that volume stops the device going in at all,
 - A lobe swinging at Y = 0 crosses the mast's aft shoulders, which reach
   X 63.82 at Y ±15.
 
-What does work is **outboard of the device**. On a pad on top of the +Y side
-rail there is no mast and no corridor, so a proper M5 boss fits. Locked, the
-lobe reaches inboard over the device's top corner. A quarter turn swings it
-fore-and-aft, clear, and the device lifts straight out.
+What does work is **outboard of the device**. On a pad on top of the left-hand
+side rail there is no mast and no corridor, so a proper M5 boss fits. Locked,
+the lobe reaches inboard over the device's top corner. A quarter turn swings it
+fore-and-aft, clear, and the device lifts straight out. It is on the left
+because every control on the Atlas is on the right.
 
 The cam pivots on an M5 thumbscrew into a brass insert — nip it up and the cam
 is friction-locked. A Ø4.2 hasp hole through the lobe lines up with a hole in
 the pad **only in the locked position**, for a pin, seizing wire or a small
 padlock.
 
-### One honest limitation
+### The case earns its keep here
 
-The Atlas's top edge is a rounded crown — at the very top there is only about
-1.8 mm of flat across its 14.6 mm depth, and just 2 mm² of section. No retainer
-pressing from above can get a large contact patch on this device. The cam is set
-as low as it will run, which leaves **0.40 mm of free lift** before it bites.
-That is enough to stop the device leaving, but it is a crown contact, not a
-flush clamp. If you want zero movement, a 1 mm self-adhesive pad on the ledge
-takes up the remainder.
+The bare Atlas's top edge is a rounded crown — only about 1.8 mm of flat across
+its 14.6 mm depth, and 2 mm² of section at the very top (see
+`docs/MEASUREMENTS.md`). A cam pressing on that would be point contact on a
+curve. The silicone case gives the cam a flat, slightly compliant top face to
+work against instead.
+
+The cam sits **0.35 mm** above the cased top, so free lift is **0.40 mm** before
+it bites, and it is a face contact rather than a crown contact. The silicone
+takes up the rest.
 
 ## Mast fixing
 
@@ -100,13 +108,18 @@ diameter and cannot pass. M4 gives 1.0 mm clearance nominal.
 Facing the screen, the Atlas's controls are all on the **left**. The lock is on
 the right, well clear of them. Verified in the build script, not by eye:
 
-| Feature | Provision |
-|---|---|
-| Screen | Front fully open |
-| 4 front buttons | Side lip stops 1.95 mm clear of them |
-| Power button (top edge) | Nothing above it — lock is on the opposite side |
-| Charge port (bottom edge) | Notch through the ledge, open forward for a plug |
-| Drainage | 2 × Ø4 mm holes in the ledge |
+| Feature | Where it lands | Provision |
+|---|---|---|
+| Screen | — | Front fully open |
+| Big raised bar | Bottom of the screen | Front fully open |
+| 4 front buttons | Right edge, Y 36.6…39.5 | Side lip stops **3.95 mm** clear |
+| Edge control A | **Bottom** edge, Y 34.2…38.0 | Notch through the ledge, open forward |
+| Edge control B | **Top** edge, Y 27.2…36.9 | Top is open by design — nothing above it |
+| Drainage | — | 2 × Ø4 mm holes in the ledge |
+
+The two edge controls are at opposite ends of the device (one is the power
+button, one the charge port). Both get a full opening, so it does not matter
+which is which.
 
 ## Bill of materials
 
@@ -119,7 +132,7 @@ the right, well clear of them. Verified in the build script, not by eye:
 | 1 | M5 × 16 A4 thumbscrew — lock pivot |
 | 1 | M5 brass heat-set insert, Ø6.4 × 9.5 mm |
 | 1 | Ø4 pin, seizing wire or small padlock for the hasp hole (optional) |
-| 1 | 1 mm self-adhesive neoprene/EVA pad, ~85 × 110 mm (optional, kills the 0.4 mm lift) |
+| 1 | 1 mm self-adhesive neoprene/EVA pad, ~90 × 115 mm (optional, kills the 0.4 mm lift) |
 
 The luff nut is a circular segment sized r 9.70 against the channel's r 10.05,
 flat face at X 49.30. Make it from metal — printed threads will not hold here.
@@ -154,8 +167,8 @@ bending direction.
 4. Optional: stick the neoprene pad to the ledge.
 5. Fit the lock with its M5 thumbscrew. It should turn firmly, not freely.
 6. To load: turn the lock fore-and-aft, slide the Atlas down between the rails —
-   screen aft, controls to the left, rear protrusions into the relief channels —
-   until it lands on the ledge. Turn the lock inboard over the top corner and
+   screen aft, big raised bar at the bottom, controls to the right, rear
+   protrusions into the relief channels — until it lands on the ledge. Turn the lock inboard over the top corner and
    nip up the thumbscrew. Add a pin or seizing wire through the hasp if you want
    it positively locked.
 
@@ -181,7 +194,7 @@ Everything is already assembled, so use **As-built Joints**
 | `atlas_2` ↔ `cradle` | **Slider** | As-built Joint, Motion = Slider, Z axis — that is how it loads |
 | `mast_express` → ground | — | **Ground** it |
 
-Lock pivot axis: **X = 79.0, Y = 51.5**, parallel to Z. Joint limits 0° to 90°.
+Lock pivot axis: **X = 79.0, Y = −53.5**, parallel to Z. Joint limits 0° to 90°.
 
 ## Rebuilding
 
@@ -201,8 +214,9 @@ failures. It asserts:
 - the lock swings fully clear when open, and which way it has to turn
 - free lift under the closed lock, and that it resists a 1 mm lift
 - bearing area of the load-bearing ledge
-- clear access above the power button, in front of the four front buttons, and
-  below the charge port
+- clear access below the bottom edge control, above the top edge control, and
+  in front of the four front buttons
+- that a box of device + 2 mm case dimensions fits the cavity
 - each part is a single valid solid with no loose fragments, and every exported
   STEP re-imports as one solid with zero volume change
 
@@ -215,7 +229,8 @@ failures. It asserts:
 - Tongue and saddle are cut from the section as-measured with 0.5 mm clearance.
   A different extrusion batch, or anodising build-up, may need `CLR_MAST` or
   `TONGUE_HALF_W` opening up.
-- The device is retained on a rounded crown, not a flat face — see the lock
-  section above.
+- **The cavity is sized for the device in its 2 mm silicone case.** Without the
+  case it will be loose by 2 mm a side. Change `CASE_T` in the build script if
+  you run it bare or in a different case.
 - A mount on the aft face adds windage and weight aloft on the sail's leeward
   side. Keep it as low on the spar as sightlines allow.
