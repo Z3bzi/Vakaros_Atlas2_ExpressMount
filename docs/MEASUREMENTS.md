@@ -141,3 +141,42 @@ plateau and must be relieved, or the device rocks.
 | Shell front face | −90.55 |
 
 Total standoff, mast nose to screen: **22.65 mm**.
+
+## Atlas 2 top edge — why retention is a crown contact
+
+The slide-in design retains the device with a cam pressing on its top edge, so
+how flat that edge is matters. Measured as horizontal section area of the device
+in 4 mm wide Y bands, across its full 14.6 mm depth (58.4 mm² would be fully
+flat):
+
+| Y band | Z = 57.50 | 57.20 | 56.80 | 56.00 |
+|---|---|---|---|---|
+| 0…4 | 7.1 | 18.0 | 32.5 | 32.7 |
+| 16…20 | 7.1 | 18.0 | 31.6 | 28.8 |
+| 32…36 | 7.1 | 18.0 | 32.5 | 32.6 |
+| 38…42 | 0.2 | 2.7 | 9.3 | 24.6 |
+| 42…46 | 0.0 | 0.0 | 0.0 | 0.0 |
+
+At the very top (Z = 57.64) there is only **2.0 mm²** of section across the whole
+device. The top is a rounded crown, about 1.8 mm of flat across a 14.6 mm depth,
+and it rolls off hard past Y ≈ 38.
+
+Consequence: no retainer pressing from above can get a large contact patch. The
+cam is set 0.35 mm above the crown, giving 0.40 mm of free lift before it bites.
+That stops the device leaving — the rails constrain every other direction — but
+it is point contact on a curve, not a flush clamp.
+
+## The removal corridor
+
+Because the device now loads from the top, the volume it sweeps on the way in
+is a hard constraint on where anything can live:
+
+| Region | Extent |
+|---|---|
+| Main body | X 71.22…85.57, \|Y\| ≤ 44.44, Z above 57.64 |
+| Rear protrusion channels | X 70.06…71.22, \|Y\| 13.16…17.03, Z above 57.64 |
+
+Anything in that volume blocks insertion regardless of what it does when
+locked. Behind the plate face the usable gap between the mast (X 63.82) and the
+protrusion channels is only **5.7 mm** — too narrow for a pivot boss, which is
+why the lock ended up outboard on the rail pad.

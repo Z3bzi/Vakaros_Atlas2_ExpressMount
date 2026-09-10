@@ -1,31 +1,28 @@
 #!/usr/bin/env python3
 """
-Vakaros Atlas 2  ->  Express-section mast mount  (AFT / mainsail-groove mount)
-=============================================================================
+Vakaros Atlas 2  ->  Express-section mast mount
+===============================================
+Slide-in cradle, aft face of the mast, screen facing the cockpit.
 
-The device sits on the AFT face of the mast, screen facing the cockpit.
+The device drops in from the TOP and lands on a solid ledge that is part of the
+cradle body.  Nothing that moves carries the device:
 
-Fixing uses the mainsail luff groove, which measures (from Mast.step):
+    weight (-Z)        -> fixed bottom ledge
+    fore/aft (X)       -> fixed side-rail lips
+    athwartships (Y)   -> fixed side rails
+    lift-out (+Z)      -> the rotating lock, which is a retainer only
 
-    outer recess   20.00 mm wide (Y +/-10.00), X 53.4 .. 60.0, flaring to
-                   27 mm at the aft face -- a parallel slot, so a tongue on
-                   the back plate locates in it and carries all the shear
-    throat         5.00 mm minimum, at X 52.0
-    round channel  circle centre X = 50.04, r = 10.05  (the bolt rope's home)
+Rotating lock: a lever that flips over the top edge of the device, pivoting on
+a Y-parallel axis BEHIND the plate face.  That position is forced -- the device
+sweeps a removal corridor (X 71.22..85.57, |Y| <= 44.44, Z above 57.64) and
+anything left in it, latch or pivot, stops the device going in at all.  Flipped
+up, the whole lever sits at X < 70 and the corridor is clear.
 
-so the back plate gets a full-height tongue into the recess, and two M4 bolts
-pass through the throat into a half-round bar lying in the channel.
+Mast fixing is unchanged: a full-height tongue in the mainsail luff groove plus
+two M4 bolts through the 5.00 mm throat into a half-round bar in the channel.
 
-    NOTE: only usable BELOW the gooseneck, where the mainsail bolt rope is not
-    in the groove.  See README.
-
-Coordinate system (world, mm)
-    +X aft   (away from the mast, toward the cockpit)
-    +Y       athwartships
-    +Z up    (mast axis); mount centred on Z = 0
-
-Device frame -> world:  Xw = Ya + DEV_CX ,  Yw = -Xa ,  Zw = Za
-(a -90 deg rotation about Z then a translation, so +Ya -- the screen -- faces aft)
+Coordinate system (world, mm):  +X aft, +Y athwartships, +Z up (mast axis).
+Device frame -> world:  Xw = Ya + DEV_CX,  Yw = -Xa,  Zw = Za
 """
 
 import math
@@ -40,83 +37,101 @@ OUT = os.path.join(ROOT, "export")
 os.makedirs(OUT, exist_ok=True)
 
 # ---------------------------------------------------------------- measured --
-MAST_AFT_X       = 63.822    # aft-most point of the section, at Y ~ +/-15
-RECESS_HALF_W    = 10.000    # parallel part of the outer recess
-RECESS_FLOOR_X   = 53.496    # shoulder the tongue stops short of
-THROAT_MIN_W     = 5.000     # at X = 52.0 -- this is what caps bolt size
-CHANNEL_CX       = 50.04     # bolt-rope channel: centre and radius
-CHANNEL_R        = 10.05
-CHANNEL_MOUTH_X  = 49.30     # flat face of the slug sits here
+MAST_AFT_X      = 63.822
+RECESS_HALF_W   = 10.000
+RECESS_FLOOR_X  = 53.496
+THROAT_MIN_W    = 5.000
+CHANNEL_CX      = 50.04
+CHANNEL_R       = 10.05
+CHANNEL_MOUTH_X = 49.30
 
-DEV_HALF_W    = 44.44
-DEV_FRONT_Y   =  1.00
-DEV_BACK_Y    = -13.25
-DEV_BACKMOST_Y= -14.41
-DEV_TOP_Z     =  57.64
-DEV_PORT_BOT_Z= -58.01
+DEV_HALF_W     = 44.44
+DEV_FRONT_Y    =  1.00
+DEV_BUTTON_Y   =  1.35
+DEV_BACK_Y     = -13.25
+DEV_BACKMOST_Y = -14.41
+DEV_TOP_Z      =  57.64
+DEV_BOT_Z      = -57.64
+DEV_PORT_BOT_Z = -58.01
 
-BTN_XA  = (36.61, 39.49)     # 4 front buttons, column near one edge
-PWR_XA  = (34.19, 38.04)     # power button, top edge
+BTN_XA  = (36.61, 39.49)
+PWR_XA  = (34.19, 38.04)
 PWR_YA  = (-7.62, -5.91)
-PORT_XA = (27.21, 36.94)     # charge port, bottom edge
+PORT_XA = (27.21, 36.94)
 PORT_YA = (-5.82, -1.86)
-PROT_XA = (13.16, 17.03)     # rear protrusions (mirrored pair)
+PROT_XA = (13.16, 17.03)
 
 # ------------------------------------------------------------------ design --
-CLR         = 0.30
-CLR_MAST    = 0.50
-WALL        = 3.00
-AFT_WALL    = 7.00
-PLATE_CORE_T= 7.00
+CLR          = 0.30
+CLR_MAST     = 0.50
+RAIL_WALL    = 3.00
+LIP_T        = 3.00
+LEDGE_T      = 4.00
+AFT_WALL     = 7.00
+PLATE_CORE_T = 7.00
 
-TONGUE_HALF_W = 9.70         # 0.3 mm each side in the 20.00 mm recess
-MAST_BOLT     = 4.0          # M4 -- the 5.00 mm throat rules out M5
-MAST_BOLT_CLR = 4.5
+TONGUE_HALF_W     = 9.70
+MAST_BOLT         = 4.0
+MAST_BOLT_CLR     = 4.5
 MAST_BOLT_CBORE   = 9.0
 MAST_BOLT_CBORE_D = 4.5
-BOLT_DZ       = 35.0
+BOLT_DZ           = 35.0
 
-LOCK_SCREW_CLR   = 3.4
-LOCK_INSERT_D    = 4.0
-LOCK_INSERT_DEEP = 6.5
-LOCK_Y           = -52.5     # thumbscrews: same side as the controls
-LOCK_DZ          = 30.0
+# Rotating lock: a cam on a vertical axis, on a pad on top of the +Y side rail.
+# It has to live OUTBOARD of the device (|Y| > 44.44), not above it: behind the
+# plate face the gap between the mast (X 63.82) and the rear-protrusion channels
+# (X 70.06) is 5.7 mm, and a lobe swinging at Y = 0 crosses the mast's aft
+# shoulders.  Outboard of the rail there is no mast and no corridor, so a proper
+# M5 pivot boss fits.  Locked, the lobe reaches inboard over the device's top
+# corner; a quarter turn swings it fore-and-aft, clear.
+LOCK_PIVOT_X   = 79.0
+LOCK_PIVOT_Y   = 51.5        # boss (r 6.5) must clear the corridor at Y 44.74
+LOCK_BOSS_R    = 6.5
+LOCK_LOBE_LEN  = 13.5
+LOCK_LOBE_HW   = 5.0
+LOCK_T         = 6.0
+LOCK_BORE      = 5.3         # M5 pivot thumbscrew
+LOCK_INSERT_D  = 6.4         # M5 brass heat-set insert
+LOCK_INSERT_DP = 9.5
+LOCK_HASP_Y    = 45.5        # pin / seizing wire, lines up only when locked
+LOCK_HASP_D    = 4.2
+LOCK_PAD_X     = (72.0, 86.0)
+LOCK_PAD_Y     = 58.0
+LOCK_PAD_Z0    = 30.0
+LOCK_PAD_DROP  = 0.15        # pad sits just below the device crown
+LOCK_PAD_GAP   = 0.50        # running clearance under the cam
 
-HINGE_Y   = 52.5             # hinge: opposite side to the controls
-HINGE_R   = 4.0
-HINGE_PIN = 3.2
-HINGE_SHELL_HZ = 20.0
-HINGE_GAP = 0.4
-
-PLATE_Y0, PLATE_Y1 = -57.0, 47.0
-PLATE_HZ = 62.0
+PLATE_Y0, PLATE_Y1 = -49.0, 49.0
 
 # --------------------------------------------------------------- derived ----
-PLATE_FACE_X = MAST_AFT_X + CLR_MAST + AFT_WALL
-DEV_CX       = PLATE_FACE_X - DEV_BACK_Y
+PLATE_FACE_X = MAST_AFT_X + CLR_MAST + AFT_WALL          # 71.222
+DEV_CX       = PLATE_FACE_X - DEV_BACK_Y                 # 84.472
 
-def dvx(ya):  return ya + DEV_CX          # device Ya -> world X
-def dvy(xa):  return -xa                  # device Xa -> world Y
+def dvx(ya): return ya + DEV_CX
+def dvy(xa): return -xa
 def dvxs(a, b): return tuple(sorted((dvx(a), dvx(b))))
 def dvys(a, b): return tuple(sorted((dvy(a), dvy(b))))
 
-DEV_SCREEN_X = dvx(DEV_FRONT_Y)
+DEV_SCREEN_X = dvx(DEV_FRONT_Y)                          # 85.472
+DEV_BTN_X    = dvx(DEV_BUTTON_Y)
 CAV_Y        = DEV_HALF_W + CLR
-CAV_TOP_Z    = DEV_TOP_Z + CLR
-CAV_BOT_Z    = DEV_PORT_BOT_Z - CLR
 CAV_FRONT_X  = DEV_SCREEN_X + 0.20
-SHELL_BACK_X = PLATE_FACE_X
-SHELL_FRONT_X= CAV_FRONT_X + WALL
-SHELL_Y      = CAV_Y + WALL
-SHELL_TOP_Z  = CAV_TOP_Z + WALL
-SHELL_BOT_Z  = CAV_BOT_Z - WALL
+LEDGE_TOP_Z  = DEV_BOT_Z                                 # device sits on this
+CRADLE_BOT_Z = LEDGE_TOP_Z - LEDGE_T
+RAIL_TOP_Z   = DEV_TOP_Z + 0.40
+RAIL_OUT_Y   = CAV_Y + RAIL_WALL
+RAIL_FRONT_X = CAV_FRONT_X + LIP_T
 LIP_IN_Y     = DEV_HALF_W - 3.0
+LOCK_PAD_TOP_Z = DEV_TOP_Z - LOCK_PAD_DROP
+LOCK_UNDER_Z = LOCK_PAD_TOP_Z + LOCK_PAD_GAP
+LOCK_TOP_Z   = LOCK_UNDER_Z + LOCK_T
+LOCK_TIP_Y   = LOCK_PIVOT_Y - LOCK_LOBE_LEN
+PLATE_TOP_Z  = DEV_TOP_Z + 0.30
 
-# cutouts, derived from the measured feature boxes (not hand-placed)
+# cutouts derived from the measured feature boxes
 PWR_CUT_Y  = (dvys(*PWR_XA)[0] - 1.9, dvys(*PWR_XA)[1] + 1.9)
-PWR_CUT_X1 = dvxs(*PWR_YA)[1] + 1.2                 # keep a screen-side tie bar
 PORT_CUT_Y = (dvys(*PORT_XA)[0] - 2.1, dvys(*PORT_XA)[1] + 2.1)
-PORT_CUT_X0= dvxs(*PORT_YA)[0] - 1.2                # keep a mast-side tie bar
+PORT_CUT_X0 = dvxs(*PORT_YA)[0] - 1.2
 RELIEF_Y   = (PROT_XA[0] - 1.2, PROT_XA[1] + 1.5)
 
 # ------------------------------------------------------------- primitives --
@@ -175,7 +190,6 @@ def section_segments():
     return _SECT
 
 def aft_xmax(y):
-    """Aft-most material at this Y (traces skin, flare and recess floor)."""
     import numpy as np
     s = section_segments()
     x1, y1, x2, y2 = s[:, 0], s[:, 1], s[:, 2], s[:, 3]
@@ -187,16 +201,14 @@ def aft_xmax(y):
 
 def mast_aft_clearance(clr, ylim=32.0, ny=321, depth=400.0):
     """Prism the mount must stay aft of: the aft face grown by `clr`, with the
-    luff groove floored off at the recess shoulder so the plate grows a tongue
-    into the recess but never into the throat."""
+    luff groove floored at the recess shoulder so the plate grows a tongue into
+    the recess but never into the throat."""
     import numpy as np
-    ys = np.linspace(-ylim, ylim, ny)
     pts = []
-    for y in ys:
+    for y in np.linspace(-ylim, ylim, ny):
         xm = aft_xmax(float(y))
-        if xm is None:
-            xm = RECESS_FLOOR_X
-        pts.append((max(xm, RECESS_FLOOR_X) + clr, float(y)))
+        pts.append((max(xm if xm is not None else RECESS_FLOOR_X,
+                        RECESS_FLOOR_X) + clr, float(y)))
     poly = pts + [(-100.0, pts[-1][1]), (-100.0, pts[0][1])]
     return (cq.Workplane("XY").polyline(poly).close()
             .extrude(depth).val().translate((0, 0, -depth / 2.0)))
@@ -205,162 +217,222 @@ MASTCLR = mast_aft_clearance(CLR_MAST)
 print("  aft clearance prism ok, X %.2f..%.2f"
       % (MASTCLR.BoundingBox().xmin, MASTCLR.BoundingBox().xmax))
 
-# ------------------------------------------------------------- back plate ---
-def build_back_plate():
+# ----------------------------------------------------------------- cradle ---
+def build_cradle():
+    # back plate
     part = box(PLATE_FACE_X - PLATE_CORE_T, PLATE_FACE_X,
-               PLATE_Y0, PLATE_Y1, -PLATE_HZ, PLATE_HZ)
-    # full-height tongue into the 20 mm recess -- the primary location feature
+               PLATE_Y0, PLATE_Y1, CRADLE_BOT_Z, PLATE_TOP_Z)
+    # full-height tongue into the 20 mm luff-groove recess
     part = fuse(part, box(RECESS_FLOOR_X - 3.0, PLATE_FACE_X,
-                          -TONGUE_HALF_W, TONGUE_HALF_W, -PLATE_HZ, PLATE_HZ))
+                          -TONGUE_HALF_W, TONGUE_HALF_W,
+                          CRADLE_BOT_Z, PLATE_TOP_Z))
     # saddle wings onto the aft skin either side of the groove
     for s in (1, -1):
-        part = fuse(part, box(57.0, PLATE_FACE_X,
-                              *sorted((s * 12.0, s * 23.0)), -PLATE_HZ, PLATE_HZ))
-    # heat-set insert ears
-    for zc in (LOCK_DZ, -LOCK_DZ):
-        part = fuse(part, box(PLATE_FACE_X - 9.0, PLATE_FACE_X,
-                              PLATE_Y0, -46.0, zc - 7.0, zc + 7.0))
-    # hinge knuckles + webs, forward of the parting plane
-    for z0, z1 in ((-58.0, -HINGE_SHELL_HZ - HINGE_GAP),
-                   (HINGE_SHELL_HZ + HINGE_GAP, 58.0)):
-        part = fuse(part,
-                    cyl_z(PLATE_FACE_X, HINGE_Y, z0, z1, HINGE_R),
-                    box(PLATE_FACE_X - 4.0, PLATE_FACE_X, PLATE_Y1, HINGE_Y, z0, z1))
-
-    part = part.cut(MASTCLR)                                   # carve the saddle
+        part = fuse(part, box(57.0, PLATE_FACE_X, *sorted((s * 12.0, s * 23.0)),
+                              CRADLE_BOT_Z, PLATE_TOP_Z))
+    # side rails with front retaining lips -- fixed, they take all the fore/aft
+    for s in (1, -1):
+        part = fuse(part, box(PLATE_FACE_X, RAIL_FRONT_X,
+                              *sorted((s * CAV_Y, s * RAIL_OUT_Y)),
+                              CRADLE_BOT_Z, RAIL_TOP_Z))
+        part = fuse(part, box(CAV_FRONT_X, RAIL_FRONT_X,
+                              *sorted((s * LIP_IN_Y, s * RAIL_OUT_Y)),
+                              CRADLE_BOT_Z, RAIL_TOP_Z))
+    # pad on top of the +Y rail that carries the rotating lock
+    part = fuse(part, box(LOCK_PAD_X[0], LOCK_PAD_X[1], CAV_Y, LOCK_PAD_Y,
+                          LOCK_PAD_Z0, LOCK_PAD_TOP_Z))
+    # rail top is cut down under the cam so the lobe can swing over it
+    part = part.cut(box(LOCK_PAD_X[0] - 0.6, LOCK_PAD_X[1] + 0.6,
+                        CAV_Y, LOCK_PAD_Y + 1.0,
+                        LOCK_PAD_TOP_Z, RAIL_TOP_Z + 1.0))
+    # load-bearing bottom ledge -- the device rests here, nothing else
+    part = fuse(part, box(PLATE_FACE_X, RAIL_FRONT_X, -RAIL_OUT_Y, RAIL_OUT_Y,
+                          CRADLE_BOT_Z, LEDGE_TOP_Z))
+    part = part.cut(MASTCLR)
+    # rear-protrusion relief channels, open at the top so they guide the slide
     for s in (1, -1):
         part = part.cut(box(PLATE_FACE_X - 2.0, PLATE_FACE_X,
                             *sorted((s * RELIEF_Y[0], s * RELIEF_Y[1])),
-                            -57.0, 57.0))
+                            -57.0, PLATE_TOP_Z + 1.0))
+    # charge port, through the ledge, open forward for a plug
+    part = part.cut(box(PORT_CUT_X0, RAIL_FRONT_X + 1.0, *PORT_CUT_Y,
+                        CRADLE_BOT_Z - 1.0, LEDGE_TOP_Z + 0.6))
+    # drains
+    for yc in (10.0, 30.0):
+        part = part.cut(cyl_z(PLATE_FACE_X + 8.0, yc,
+                              CRADLE_BOT_Z - 1.0, LEDGE_TOP_Z + 1.0, 2.0))
+    # mast bolts
     for zc in (BOLT_DZ, -BOLT_DZ):
         part = part.cut(cyl_x(CHANNEL_MOUTH_X, PLATE_FACE_X + 1.0, 0.0, zc,
                               MAST_BOLT_CLR / 2.0))
         part = part.cut(cyl_x(PLATE_FACE_X - MAST_BOLT_CBORE_D,
-                              PLATE_FACE_X + 0.1, 0.0, zc,
-                              MAST_BOLT_CBORE / 2.0))
-    for zc in (LOCK_DZ, -LOCK_DZ):
-        part = part.cut(cyl_x(PLATE_FACE_X - LOCK_INSERT_DEEP,
-                              PLATE_FACE_X + 0.1, LOCK_Y, zc,
-                              LOCK_INSERT_D / 2.0))
-    part = part.cut(cyl_z(PLATE_FACE_X, HINGE_Y, -56.0, 59.0, HINGE_PIN / 2.0))
-    part = part.cut(cyl_y(HINGE_Y - 6.0, HINGE_Y + 6.0, PLATE_FACE_X, 56.0, 0.8))
+                              PLATE_FACE_X + 0.1, 0.0, zc, MAST_BOLT_CBORE / 2.0))
+    # lock: M5 insert for the pivot thumbscrew, plus the hasp pin hole
+    part = part.cut(cyl_z(LOCK_PIVOT_X, LOCK_PIVOT_Y,
+                          LOCK_PAD_TOP_Z - LOCK_INSERT_DP, LOCK_PAD_TOP_Z + 0.1,
+                          LOCK_INSERT_D / 2.0))
+    part = part.cut(cyl_z(LOCK_PIVOT_X, LOCK_HASP_Y, LOCK_PAD_TOP_Z - 10.0,
+                          LOCK_PAD_TOP_Z + 0.1, LOCK_HASP_D / 2.0))
     return part.clean()
 
-# ------------------------------------------------------------ front shell ---
-def build_front_shell():
-    part = box(SHELL_BACK_X, SHELL_FRONT_X, -SHELL_Y, SHELL_Y,
-               SHELL_BOT_Z, SHELL_TOP_Z)
-    part = fuse(part,
-                cyl_z(SHELL_BACK_X, HINGE_Y, -HINGE_SHELL_HZ, HINGE_SHELL_HZ, HINGE_R),
-                box(SHELL_BACK_X, SHELL_BACK_X + 4.0, SHELL_Y, HINGE_Y,
-                    -HINGE_SHELL_HZ, HINGE_SHELL_HZ))
-    for zc in (LOCK_DZ, -LOCK_DZ):
-        part = fuse(part, box(SHELL_BACK_X, SHELL_BACK_X + 4.0,
-                              PLATE_Y0, -SHELL_Y, zc - 6.0, zc + 6.0))
-
-    part = part.cut(box(SHELL_BACK_X - 1.0, CAV_FRONT_X,
-                        -CAV_Y, CAV_Y, CAV_BOT_Z, CAV_TOP_Z))
-    part = part.cut(box(CAV_FRONT_X, SHELL_FRONT_X + 1.0,
-                        -LIP_IN_Y, LIP_IN_Y, SHELL_BOT_Z - 5.0, SHELL_TOP_Z + 5.0))
-    part = part.cut(box(SHELL_BACK_X - 1.0, PWR_CUT_X1, *PWR_CUT_Y,
-                        CAV_TOP_Z - 1.0, SHELL_TOP_Z + 1.0))
-    part = part.cut(box(PORT_CUT_X0, SHELL_FRONT_X + 1.0, *PORT_CUT_Y,
-                        SHELL_BOT_Z - 1.0, CAV_BOT_Z + 1.0))
-    for yc in (10.0, 30.0):
-        part = part.cut(cyl_z(SHELL_BACK_X + 8.0, yc,
-                              SHELL_BOT_Z - 1.0, CAV_BOT_Z + 1.0, 2.0))
-    part = part.cut(cyl_z(SHELL_BACK_X, HINGE_Y,
-                          -HINGE_SHELL_HZ - 1.0, HINGE_SHELL_HZ + 1.0, HINGE_PIN / 2.0))
-    for zc in (LOCK_DZ, -LOCK_DZ):
-        part = part.cut(cyl_x(SHELL_BACK_X - 1.0, SHELL_BACK_X + 5.0,
-                              LOCK_Y, zc, LOCK_SCREW_CLR / 2.0))
+# ------------------------------------------------------------------- lock ---
+def build_lock():
+    """Cam: lobe inboard = locked, over the device's top corner.  A quarter turn
+    swings it fore-and-aft, outboard of the device, and the device lifts out."""
+    px, py = LOCK_PIVOT_X, LOCK_PIVOT_Y
+    part = fuse(
+        cyl_z(px, py, LOCK_UNDER_Z, LOCK_TOP_Z, LOCK_BOSS_R),
+        box(px - LOCK_LOBE_HW, px + LOCK_LOBE_HW, LOCK_TIP_Y, py,
+            LOCK_UNDER_Z, LOCK_TOP_Z),
+        cyl_z(px, LOCK_TIP_Y, LOCK_UNDER_Z, LOCK_TOP_Z, LOCK_LOBE_HW))
+    for i in range(8):                                   # finger flutes
+        a = math.radians(i * 45.0 + 22.5)
+        part = part.cut(cyl_z(px + (LOCK_BOSS_R + 1.6) * math.cos(a),
+                              py + (LOCK_BOSS_R + 1.6) * math.sin(a),
+                              LOCK_UNDER_Z - 1, LOCK_TOP_Z + 1, 1.7))
+    part = part.cut(cyl_z(px, py, LOCK_UNDER_Z - 1, LOCK_TOP_Z + 1, LOCK_BORE / 2.0))
+    part = part.cut(cyl_z(px, LOCK_HASP_Y, LOCK_UNDER_Z - 1, LOCK_TOP_Z + 1,
+                          LOCK_HASP_D / 2.0))
     return part.clean()
 
-# ------------------------------------------------------- luff-groove nuts ---
+def lock_at(shape, angle):
+    return shape.rotate((LOCK_PIVOT_X, LOCK_PIVOT_Y, 0),
+                        (LOCK_PIVOT_X, LOCK_PIVOT_Y, 1), angle)
+
 def luff_bar(length, holes):
-    """Half-round bar for the bolt-rope channel: a circular segment that drops
-    in from the open end of the groove.  Flat face aft, tapped M4."""
     seg = cyl_z(CHANNEL_CX, 0.0, -length / 2.0, length / 2.0, CHANNEL_R - 0.35)
-    seg = seg.cut(box(CHANNEL_MOUTH_X, CHANNEL_CX + 20.0, -20, 20,
-                      -length, length))
+    seg = seg.cut(box(CHANNEL_MOUTH_X, CHANNEL_CX + 20.0, -20, 20, -length, length))
     for zc in holes:
         seg = seg.cut(cyl_x(CHANNEL_MOUTH_X - 9.0, CHANNEL_MOUTH_X + 1.0,
                             0.0, zc, MAST_BOLT / 2.0 - 0.35))
     return seg.clean()
 
-def build_knob():
-    k = cq.Workplane("XY").circle(11.0).extrude(9.0)
-    for i in range(6):
-        a = math.radians(i * 60.0)
-        k = k.cut(cq.Workplane("XY").center(12.6 * math.cos(a), 12.6 * math.sin(a))
-                  .circle(4.2).extrude(9.0))
-    k = k.faces("<Z").workplane().polygon(6, 5.5 / math.cos(math.pi / 6)).cutBlind(-3.0)
-    k = k.faces("<Z").workplane().circle(1.8).cutBlind(-9.0)
-    return k.val()
-
 # ------------------------------------------------------------------ build ---
-print("building back plate ...")
-plate = principal(build_back_plate(), "back plate")
-print("building front shell ...")
-shell = principal(build_front_shell(), "front shell")
-for nm, sh in (("back plate", plate), ("front shell", shell)):
-    print("  %-12s valid=%s  solids=%d  vol=%.1f cm^3"
+print("building cradle ...")
+cradle = principal(build_cradle(), "cradle")
+print("building lock ...")
+lock = principal(build_lock(), "lock")
+for nm, sh in (("cradle", cradle), ("lock", lock)):
+    print("  %-8s valid=%s  solids=%d  vol=%.1f cm^3"
           % (nm, sh.isValid(), len(sh.Solids()), sh.Volume() / 1000.0))
-print("building hardware ...")
 bar = luff_bar(90.0, (BOLT_DZ, -BOLT_DZ))
 slug = luff_bar(25.0, (0.0,))
-knob = build_knob()
 
 # ------------------------------------------------------------- validation ---
 def vol(s):
     try: return s.Volume()
     except Exception: return float("nan")
 
+def chk(cond, label, extra=""):
+    print("  %s%-46s %s" % ("OK " if cond else "!! ", label, extra))
+    return cond
+
 def clash(a, b, label, tol=1.0):
     v = vol(a.intersect(b))
-    print("  %s%-40s overlap = %9.3f mm^3" % ("OK " if v < tol else "!! ", label, v))
+    chk(v < tol, label, "overlap = %9.3f mm^3" % v)
     return v
 
-print("\n--- interference check -------------------------------------------")
-clash(plate, mast,  "back plate  vs  mast")
-clash(plate, atlas, "back plate  vs  Atlas 2")
-clash(shell, atlas, "front shell vs  Atlas 2")
-clash(shell, mast,  "front shell vs  mast")
-clash(shell, plate, "front shell vs  back plate")
-clash(bar,   mast,  "luff bar    vs  mast")
-v = vol(plate.intersect(mast_aft_clearance(CLR_MAST + 0.15)))
-print("  %sseat proof: plate meets mast+%.2f      overlap = %9.3f mm^3"
-      % ("OK " if v > 1.0 else "!! ", CLR_MAST + 0.15, v))
+FAIL = []
+print("\n--- interference (lock closed) -----------------------------------")
+for a, b, l in ((cradle, mast, "cradle vs mast"), (cradle, atlas, "cradle vs Atlas 2"),
+                (lock, atlas, "lock   vs Atlas 2"), (lock, cradle, "lock   vs cradle"),
+                (lock, mast, "lock   vs mast"), (bar, mast, "luff bar vs mast")):
+    if clash(a, b, l) >= 1.0: FAIL.append(l)
 
-print("\n--- hinge sweep --------------------------------------------------")
-ax0, ax1 = (PLATE_FACE_X, HINGE_Y, -1.0), (PLATE_FACE_X, HINGE_Y, 1.0)
-for ang in (5, 15, 30, 45, 60, 90, 120):
-    v = vol(shell.rotate(ax0, ax1, ang).intersect(plate))
-    print("  %s%4d deg   shell/plate overlap = %9.3f mm^3"
-          % ("OK " if v < 1.0 else "!! ", ang, v))
+v = vol(cradle.intersect(mast_aft_clearance(CLR_MAST + 0.15)))
+if not chk(v > 1.0, "seat proof: cradle meets mast+0.65",
+           "overlap = %9.3f mm^3" % v): FAIL.append("seat")
 
-bb = plate.BoundingBox(); print("\nback plate  %.1f x %.1f x %.1f mm   %.1f cm^3"
-      % (bb.xlen, bb.ylen, bb.zlen, vol(plate) / 1000.0))
-bb = shell.BoundingBox(); print("front shell %.1f x %.1f x %.1f mm   %.1f cm^3"
-      % (bb.xlen, bb.ylen, bb.zlen, vol(shell) / 1000.0))
-print("stack: mast aft face %.2f -> screen %.2f  = %.2f mm standoff"
+# which way does the lock open?
+print("\n--- lock rotation ------------------------------------------------")
+_ab = atlas.BoundingBox()
+_ZTOP = DEV_TOP_Z + 140.0
+CORRIDOR = fuse(
+    box(PLATE_FACE_X, _ab.xmax, -DEV_HALF_W, DEV_HALF_W, DEV_TOP_Z, _ZTOP),
+    box(_ab.xmin, PLATE_FACE_X, PROT_XA[0] - 0.3, PROT_XA[1] + 0.3, DEV_TOP_Z, _ZTOP),
+    box(_ab.xmin, PLATE_FACE_X, -PROT_XA[1] - 0.3, -PROT_XA[0] + 0.3, DEV_TOP_Z, _ZTOP))
+best = None
+for ang in (90, -90):
+    o = lock_at(lock, ang)
+    v = vol(o.intersect(CORRIDOR)) + vol(o.intersect(cradle)) + vol(o.intersect(mast))
+    print("     rotate %+4d deg -> obstruction %9.3f mm^3" % (ang, v))
+    if best is None or v < best[1]: best = (ang, v)
+LOCK_OPEN_ANGLE = best[0]
+if not chk(best[1] < 1.0, "lock opens clear at %+d deg" % LOCK_OPEN_ANGLE,
+           "residual = %.3f mm^3" % best[1]): FAIL.append("lock open")
+lock_open = lock_at(lock, LOCK_OPEN_ANGLE)
+
+print("\n--- slide-in corridor (lock open) --------------------------------")
+v = vol(cradle.intersect(CORRIDOR))
+if not chk(v < 1.0, "cradle clear of removal corridor",
+           "overlap = %9.3f mm^3" % v): FAIL.append("corridor")
+worst = 0.0
+for dz in (0, 5, 10, 20, 40, 60, 80, 100, 120):
+    moved = atlas.translate((0, 0, dz))
+    w = vol(moved.intersect(cradle)) + vol(moved.intersect(lock_open))
+    worst = max(worst, w)
+    if w >= 1.0: print("     !! blocked at +%d mm: %.3f mm^3" % (dz, w))
+if not chk(worst < 1.0, "device slides in from the top, 0..120 mm",
+           "worst overlap = %.3f mm^3" % worst): FAIL.append("slide")
+
+print("\n--- retention and access -----------------------------------------")
+free = None
+for mm in [x / 20.0 for x in range(1, 61)]:
+    if vol(atlas.translate((0, 0, mm)).intersect(lock)) > 0.02:
+        free = mm; break
+if not chk(free is not None and free <= 0.60,
+           "closed lock: free lift before it bites",
+           "%.2f mm" % (free if free else 99)): FAIL.append("retain")
+v = vol(atlas.translate((0, 0, 1.0)).intersect(lock))
+if not chk(v > 1.0, "closed lock resists a 1 mm lift",
+           "interference = %9.3f mm^3" % v): FAIL.append("retain force")
+SLAB_T = 0.10
+slab = box(_ab.xmin, _ab.xmax, _ab.ymin, _ab.ymax,
+           LEDGE_TOP_Z - SLAB_T, LEDGE_TOP_Z)
+area = vol(cradle.intersect(slab)) / SLAB_T
+if not chk(area > 400.0, "load-bearing ledge under the device",
+           "bearing area = %.0f mm^2" % area): FAIL.append("ledge area")
+
+# nothing above the power button, nothing over the four front buttons
+pwr = box(dvxs(*PWR_YA)[0] - 0.5, dvxs(*PWR_YA)[1] + 0.5, PWR_CUT_Y[0] + 1.4,
+          PWR_CUT_Y[1] - 1.4, DEV_TOP_Z, DEV_TOP_Z + 60.0)
+v = vol(cradle.intersect(pwr)) + vol(lock.intersect(pwr))
+if not chk(v < 1.0, "power button: clear finger access from above",
+           "obstruction = %.3f mm^3" % v): FAIL.append("power button")
+btn = box(DEV_BTN_X - 0.5, DEV_BTN_X + 40.0, dvys(*BTN_XA)[0] - 0.5,
+          dvys(*BTN_XA)[1] + 0.5, -50.0, 50.0)
+v = vol(cradle.intersect(btn)) + vol(lock.intersect(btn))
+if not chk(v < 1.0, "4 front buttons: nothing in front of them",
+           "obstruction = %.3f mm^3" % v): FAIL.append("front buttons")
+port = box(dvxs(*PORT_YA)[0] - 0.5, dvxs(*PORT_YA)[1] + 0.5, PORT_CUT_Y[0] + 1.6,
+           PORT_CUT_Y[1] - 1.6, DEV_BOT_Z - 40.0, DEV_BOT_Z)
+v = vol(cradle.intersect(port))
+if not chk(v < 1.0, "charge port: clear access from below",
+           "obstruction = %.3f mm^3" % v): FAIL.append("charge port")
+
+bb = cradle.BoundingBox()
+print("\ncradle %.1f x %.1f x %.1f mm   %.1f cm^3"
+      % (bb.xlen, bb.ylen, bb.zlen, vol(cradle) / 1000.0))
+bb = lock.BoundingBox()
+print("lock   %.1f x %.1f x %.1f mm   %.1f cm^3"
+      % (bb.xlen, bb.ylen, bb.zlen, vol(lock) / 1000.0))
+print("stack: mast aft face %.2f -> screen %.2f = %.2f mm standoff"
       % (MAST_AFT_X, DEV_SCREEN_X, DEV_SCREEN_X - MAST_AFT_X))
-print("tongue: %.1f mm wide into a %.2f mm recess, %.1f mm engagement"
-      % (2 * TONGUE_HALF_W, 2 * RECESS_HALF_W, 60.0 - (RECESS_FLOOR_X + CLR_MAST)))
+print("lock: quarter turn (%+d deg) to open; underside sits %.2f mm above the device"
+      % (LOCK_OPEN_ANGLE, LOCK_UNDER_Z - DEV_TOP_Z))
 
 # --------------------------------------------------------------- exports ----
 print("\nexporting ...")
-for name, s in [("back_plate", plate), ("front_shell", shell),
-                ("luff_nut_bar", bar), ("luff_nut_slug", slug),
-                ("thumbscrew_knob", knob)]:
+for name, s in [("cradle", cradle), ("lock", lock), ("luff_nut_bar", bar),
+                ("luff_nut_slug", slug)]:
     cq.exporters.export(cq.Workplane(obj=s), os.path.join(OUT, name + ".step"))
     cq.exporters.export(cq.Workplane(obj=s), os.path.join(OUT, name + ".stl"),
                         tolerance=0.02, angularTolerance=0.1)
     back = cq.importers.importStep(os.path.join(OUT, name + ".step"))
     n = len(back.solids().vals()); dv = abs(back.val().Volume() - s.Volume())
-    ok = (n == 1 and dv < 1.0)
-    print("  %s%s.step / .stl   (round-trip: %d solid, dV=%.3f mm^3)"
-          % ("" if ok else "!! ", name, n, dv))
+    if not chk(n == 1 and dv < 1.0, "%s.step / .stl" % name,
+               "round-trip: %d solid, dV=%.3f mm^3" % (n, dv)):
+        FAIL.append(name + ".step")
 
 def named_assembly(items, name, path):
     a = cq.Assembly(name=name)
@@ -368,9 +440,9 @@ def named_assembly(items, name, path):
         a.add(sh, name=nm, color=cq.Color(*col))
     (a.export if hasattr(a, "export") else a.save)(path)
 
-MOUNT = [("back_plate",   plate, (0.74, 0.76, 0.80, 1.0)),
-         ("front_shell",  shell, (0.23, 0.41, 0.63, 1.0)),
-         ("luff_nut_bar", bar,   (0.78, 0.58, 0.24, 1.0))]
+MOUNT = [("cradle",       cradle, (0.74, 0.76, 0.80, 1.0)),
+         ("lock",         lock,   (0.23, 0.41, 0.63, 1.0)),
+         ("luff_nut_bar", bar,    (0.78, 0.58, 0.24, 1.0))]
 named_assembly(MOUNT, "atlas2_mast_mount",
                os.path.join(OUT, "assembly_mount_only.step"))
 named_assembly(MOUNT + [("mast_express", mast,  (0.67, 0.66, 0.63, 1.0)),
@@ -382,10 +454,13 @@ for f in ("assembly_mount_only", "assembly_with_mast_and_device"):
                    open(os.path.join(OUT, f + ".step")).read())))
     print("  %s.step   components: %s" % (f, ", ".join(names)))
 
-mast_stub = mast.intersect(box(-70, 90, -60, 60, -70, 70))
+mast_stub = mast.intersect(box(-70, 95, -60, 60, -75, 75))
 for nm, sh in (("_mesh_mast_stub", mast_stub), ("_mesh_device", atlas),
-               ("_mesh_shell_open", shell.rotate(ax0, ax1, 75))):
+               ("_mesh_lock_open", lock_open),
+               ("_mesh_device_raised", atlas.translate((0, 0, 62.0)))):
     cq.exporters.export(cq.Workplane(obj=sh), os.path.join(OUT, nm + ".stl"),
                         tolerance=0.05, angularTolerance=0.2)
 print("  assembly meshes")
-print("\ndone.")
+
+print("\n%s" % ("ALL CHECKS PASSED" if not FAIL
+                else "FAILURES: " + ", ".join(FAIL)))
